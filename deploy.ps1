@@ -5,8 +5,7 @@ Param (
     [Parameter(HelpMessage = "Deployment target resource group location")] 
     [string] $Location = "North Europe",
 
-    [string] $Template = "azuredeploy.json",
-    [string] $TemplateParameters = "$PSScriptRoot\azuredeploy.parameters.json"
+    [string] $Template = "azuredeploy.json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,7 +39,6 @@ $result = New-AzResourceGroupDeployment `
     -DeploymentName $deploymentName `
     -ResourceGroupName $ResourceGroupName `
     -TemplateUri ($templateUrl + $Template + $templateToken) `
-    -TemplateParameterFile $TemplateParameters `
     @additionalParameters `
     -Mode Complete -Force `
     -Verbose
