@@ -17,3 +17,5 @@ output storageKeys object = listKeys(storageAccountResource.id, '2019-06-01')
 
 // Return primary key of storage account
 output storagePrimaryKey string = listKeys(storageAccountResource.id, '2019-06-01').keys[0].value
+
+output storageBlobEndpoint string = storageAccountResource.properties.primaryEndpoints.blob
