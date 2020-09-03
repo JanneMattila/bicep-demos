@@ -7,9 +7,12 @@ var appName = '${webAppPrefix}${uniqueString(resourceGroup().id)}'
 resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: appName
     location: location
-    kind: 'Storage'
+    kind: 'StorageV2'
     sku: {
         name: 'Standard_LRS'
+    }
+    properties: {
+        supportsHttpsTrafficOnly: true
     }
 }
 
