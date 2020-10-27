@@ -96,7 +96,22 @@ resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01'
     }
 }
 
+resource privateDNSZoneGroupsResource 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-03-01' = {
+    name: '${privateEndpointResource.name}/storagednszonegroup'
+    location: location
+    properties: {
+      privateDnsZoneConfigs: [
+        {
+          name: 'storageConfig'
+          properties: {
+            privateDnsZoneId: privateDNSZoneResource.id
+          }
+        }
+      ]
+    }
+}
+
 output storage object = storageAccountResource
 output privateEndpoint object = privateEndpointResource
+output privateDNSZoneGroups object = privateDNSZoneGroupsResource
 output privateEndpointNIC string = privateEndpointResource.properties.networkInterfaces[0].id
-output privateEndpointIP string = privateEndpointResource.properties.customDnsConfigs[0].ipAddresses[0]
