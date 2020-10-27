@@ -8,12 +8,12 @@ param addressPrefix string = '10.0.0.0/15'
 var vnetName = 'vnet-${suffix}'
 var privateDNSZoneName = 'privatelink.table.core.windows.net'
 
-resource privateDNSZone 'Microsoft.Network/privateDnsZones@2018-09-01'= {
+resource privateDNSZoneResource 'Microsoft.Network/privateDnsZones@2018-09-01'= {
   name: privateDNSZoneName
   location: 'global'
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+resource vnetResource 'Microsoft.Network/virtualNetworks@2018-10-01' = {
   name: vnetName
   location: location
   properties: {
@@ -42,7 +42,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
         properties: {
           addressPrefix: '10.0.2.0/24'
           privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
         }
       }
     ]
@@ -58,25 +57,7 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
   }
 }
 
-resource privateEndpointNIC 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: 'privatelink-to-table-nic'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'table-table.privateEndpoint'
-        properties: {
-          privateIPAddress: '10.0.2.4'
-          subnet: {
-            id: vnet.properties.subnets[2].id
-          }
-        }
-      }
-    ]
-  }
-}
-
-resource privateLink 'Microsoft.Network/privateEndpoints@2020-05-01' = {
+resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01' = {
     name: 'privatelink-to-table'
     location: location
     properties: {
@@ -92,11 +73,13 @@ resource privateLink 'Microsoft.Network/privateEndpoints@2020-05-01' = {
         }
       ]
       subnet: {
-        id: vnet.properties.subnets[2].id
+        id: vnetResource.properties.subnets[2].id
       }
     }
 }
 
+output privateEndpoint object = privateEndpointResource
+output privateEndpointIP string = privateEndpointResource.properties.networkInterfaces[0].id
 output storage object = storageAccountResource
 output storageId string = storageAccountResource.id
 output storageKeys object = listKeys(storageAccountResource.id, '2019-06-01')
