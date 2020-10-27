@@ -1,16 +1,28 @@
-param storageAccountName string = 'pl100000001'
-
 param location string = resourceGroup().location
 
+param storageAccountName string = 'pl100000002'
 param suffix string = '001'
 param addressPrefix string = '10.0.0.0/15'
 
 var vnetName = 'vnet-${suffix}'
-var privateDNSZoneName = 'privatelink.table.core.windows.net'
+var privateDNSZoneName = 'privatelink.table.${environment().suffixes.storage}'
 
+// Private DNS Zone
 resource privateDNSZoneResource 'Microsoft.Network/privateDnsZones@2018-09-01'= {
   name: privateDNSZoneName
   location: 'global'
+}
+
+// Link Private DNS Zone to VNET
+resource privateDNSZoneLinkToVNETResource 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-01-01' = {
+  name: '${privateDNSZoneName}/${privateDNSZoneName}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnetResource.id
+    }
+  }
 }
 
 resource vnetResource 'Microsoft.Network/virtualNetworks@2018-10-01' = {
@@ -55,6 +67,11 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
   sku: {
       name: 'Standard_LRS'
   }
+  properties: {
+    networkAcls: {
+      defaultAction: 'Deny'
+    }
+  }
 }
 
 resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01' = {
@@ -63,7 +80,7 @@ resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01'
     properties: {
       privateLinkServiceConnections: [
         {
-          name: 'my-privatelink-to-table'
+          name: 'privatelink-to-table'
           properties: {
             privateLinkServiceId: storageAccountResource.id
             groupIds: [
@@ -73,18 +90,13 @@ resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01'
         }
       ]
       subnet: {
+        // Place to subnet: subnet003-private-endpoint
         id: vnetResource.properties.subnets[2].id
       }
     }
 }
 
-output privateEndpoint object = privateEndpointResource
-output privateEndpointIP string = privateEndpointResource.properties.networkInterfaces[0].id
 output storage object = storageAccountResource
-output storageId string = storageAccountResource.id
-output storageKeys object = listKeys(storageAccountResource.id, '2019-06-01')
-
-// Return primary key of storage account
-output storagePrimaryKey string = listKeys(storageAccountResource.id, '2019-06-01').keys[0].value
-
-output storageBlobEndpoint string = storageAccountResource.properties.primaryEndpoints.blob
+output privateEndpoint object = privateEndpointResource
+output privateEndpointNIC string = privateEndpointResource.properties.networkInterfaces[0].id
+output privateEndpointIP string = privateEndpointResource.properties.customDnsConfigs[0].ipAddresses[0]
