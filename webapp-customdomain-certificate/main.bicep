@@ -34,4 +34,11 @@ module certificates './certificates.bicep' = {
   }
 }
 
-output appServicePlanId string = appServicePlan.outputs.id
+module hostNameSsl './hostNameSsl.bicep' = {
+  name: 'hostNameSsl'
+  params: {
+    appName: appName
+    domainName: domainName
+    thumbprint: certificates.outputs.thumbprint
+  }
+}

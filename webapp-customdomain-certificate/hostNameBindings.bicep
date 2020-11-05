@@ -9,5 +9,3 @@ resource hostNameBindings 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
     hostNameType: 'Verified'
   }
 }
-
-output id string = hostNameBindings.id

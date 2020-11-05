@@ -11,4 +11,4 @@ resource certificates 'Microsoft.Web/certificates@2020-06-01' = {
   }
 }
 
-output id string = certificates.id
+output thumbprint string = certificates.properties.thumbprint

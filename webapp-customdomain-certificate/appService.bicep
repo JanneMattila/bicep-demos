@@ -20,5 +20,3 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     clientAffinityEnabled: false
   }
 }
-
-output id string = appService.id
