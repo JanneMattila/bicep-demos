@@ -101,7 +101,6 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
 // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/complete-mode-deletion#microsoftnetwork
 resource privateDNSZoneGroupsResource 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-03-01' = {
     name: '${privateEndpointResourceName}/storagednszonegroup'
-    location: location
     properties: {
       privateDnsZoneConfigs: [
         {
@@ -123,7 +122,7 @@ module privateEndpointResource './private-endpoint.bicep' = {
 }
 
 resource privateEndpointNICResource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: privateEndpointResource.outputs.nic.value
+  name: privateEndpointResource.outputs.nic
   location: location
   properties: {
     ipConfigurations: [
@@ -143,4 +142,4 @@ resource privateEndpointNICResource 'Microsoft.Network/networkInterfaces@2020-05
 output storage object = storageAccountResource
 output privateDNSZoneGroups object = privateDNSZoneGroupsResource
 
-output nicOutput string = privateEndpointResource.outputs.nic.value
+output nicOutput string = privateEndpointResource.outputs.nic
