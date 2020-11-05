@@ -2,7 +2,7 @@ param domainName string
 param appServicePlanId string
 param location string = resourceGroup().location
 
-resource certificates 'Microsoft.Web/certificates@2020-06-01' = {
+resource certificate 'Microsoft.Web/certificates@2020-06-01' = {
   name: domainName
   location: location
   properties: {
@@ -11,4 +11,4 @@ resource certificates 'Microsoft.Web/certificates@2020-06-01' = {
   }
 }
 
-output thumbprint string = certificates.properties.thumbprint
+output thumbprint string = certificate.properties.thumbprint

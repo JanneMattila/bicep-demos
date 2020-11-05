@@ -1,7 +1,7 @@
 param appName string
 param domainName string
 
-resource hostNameBindings 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
+resource hostNameBinding 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
   name: '${appName}/${domainName}'
   properties: {
     siteName: appName

@@ -1,6 +1,6 @@
-// Create unique name for our web site
+// Web application name
 param appName string = 'contoso0000000001'
-param domainName string = 'contoso1.jannemattila.com'
+param domainName string = 'contoso.jannemattila.com'
 param location string = resourceGroup().location
 
 module appServicePlan './appServicePlan.bicep' = {
@@ -18,18 +18,18 @@ module appService './appService.bicep' = {
   }
 }
 
-module hostNameBindings './hostNameBindings.bicep' = {
-  name: 'hostNameBindings'
+module hostNameBinding './hostNameBinding.bicep' = {
+  name: 'hostNameBinding'
   params: {
     appName: appService.outputs.name
     domainName: domainName
   }
 }
 
-module certificates './certificates.bicep' = {
-  name: 'certificates'
+module certificate './certificate.bicep' = {
+  name: 'certificate'
   params: {
-    domainName: hostNameBindings.outputs.name
+    domainName: hostNameBinding.outputs.name
     appServicePlanId: appServicePlan.outputs.id
   }
 }
@@ -38,7 +38,7 @@ module hostNameSsl './hostNameSsl.bicep' = {
   name: 'hostNameSsl'
   params: {
     appName: appService.outputs.name
-    domainName: hostNameBindings.outputs.name
-    thumbprint: certificates.outputs.thumbprint
+    domainName: hostNameBinding.outputs.name
+    thumbprint: certificate.outputs.thumbprint
   }
 }
