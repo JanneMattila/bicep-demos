@@ -26,4 +26,12 @@ module hostNameBindings './hostNameBindings.bicep' = {
   }
 }
 
+module certificates './certificates.bicep' = {
+  name: 'certificates'
+  params: {
+    domainName: domainName
+    appServicePlanId: appServicePlan.outputs.id
+  }
+}
+
 output appServicePlanId string = appServicePlan.outputs.id
