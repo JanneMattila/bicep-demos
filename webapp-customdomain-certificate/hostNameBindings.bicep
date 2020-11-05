@@ -9,3 +9,5 @@ resource hostNameBindings 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
     hostNameType: 'Verified'
   }
 }
+
+output name string = domainName
