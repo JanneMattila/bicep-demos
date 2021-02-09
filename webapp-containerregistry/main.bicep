@@ -2,6 +2,9 @@ param appName string = 'contoso0000000002'
 param acrName string = 'contoso0000000002'
 param location string = resourceGroup().location
 
+// Get-AzRoleDefinition AcrPull
+var roleDefinition = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+
 resource acr 'Microsoft.ContainerRegistry/registries@2020-11-01-preview' = {
   name: acrName
   location: location
@@ -43,6 +46,17 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: true
     clientAffinityEnabled: false
+  }
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(roleDefinition, resourceGroup().id)
+  scope: acr
+
+  properties: {
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinition)
+    principalId: appService.identity.principalId
   }
 }
 
