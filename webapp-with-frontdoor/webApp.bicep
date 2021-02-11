@@ -40,12 +40,11 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
           action: 'Allow'
           tag: 'ServiceTag'
           priority: 100
-        }
-      ]
-      appSettings: [
-        {
-          name: 'X-Azure-Fdid'
-          value: frontdoorId
+          headers: {
+            'X-Azure-FDID': [
+              frontdoorId
+            ]
+          }
         }
       ]
     }
@@ -57,4 +56,3 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
 
 output id string = appServicePlan.id
 output name string = appService.name
-output uri string = appService.properties.hostNames[0]
