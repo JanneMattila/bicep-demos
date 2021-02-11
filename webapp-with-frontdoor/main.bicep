@@ -15,28 +15,6 @@ var routingRule1Name = '${frontDoorName}-routingRule1'
 var webAppUri1 = '${appName1}.azurewebsites.net'
 var webAppUri2 = '${appName2}.azurewebsites.net'
 
-var frontDoorId = reference(frontDoorName, '2020-05-01', 'Full').properties.frontdoorId
-
-module webApp1 './webApp.bicep' = {
-  name: 'webApp1'
-  params: {
-    appPlanName: 'appServicePlan1'
-    appName: appName1
-    location: location1
-    frontdoorId: frontDoorId
-  }
-}
-
-module webApp2 './webApp.bicep' = {
-  name: 'webApp2'
-  params: {
-    appPlanName: 'appServicePlan2'
-    appName: appName2
-    location: location2
-    frontdoorId: frontDoorId
-  }
-}
-
 resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
   name: frontDoorName
   location: 'global'
@@ -137,5 +115,27 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
         }
       }
     ]
+  }
+}
+
+var frontDoorId = reference(frontDoorName, '2020-05-01', 'Full').properties.frontdoorId
+
+module webApp1 './webApp.bicep' = {
+  name: 'webApp1'
+  params: {
+    appPlanName: 'appServicePlan1'
+    appName: appName1
+    location: location1
+    frontdoorId: frontDoorId
+  }
+}
+
+module webApp2 './webApp.bicep' = {
+  name: 'webApp2'
+  params: {
+    appPlanName: 'appServicePlan2'
+    appName: appName2
+    location: location2
+    frontdoorId: frontDoorId
   }
 }
