@@ -3,6 +3,8 @@ param appName2 string = 'contoso00000000011'
 param location1 string = 'north europe'
 param location2 string = 'west europe'
 
+param frontDoorName string = 'contoso0000000001'
+
 module webApp1 './webApp.bicep' = {
   name: 'webApp1'
   params: {
@@ -22,7 +24,10 @@ module webApp2 './webApp.bicep' = {
 }
 
 resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
-  name: 'frontdoor'
+  name: frontDoorName
   location: 'global'
-  properties: {}
+  properties: {
+    friendlyName: frontDoorName
+    
+  }
 }

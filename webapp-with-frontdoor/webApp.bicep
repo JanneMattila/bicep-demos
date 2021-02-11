@@ -23,6 +23,18 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       alwaysOn: true
       http20Enabled: true
       ftpsState: 'Disabled'
+
+      // https://docs.microsoft.com/en-us/azure/frontdoor/front-door-faq#how-do-i-lock-down-the-access-to-my-backend-to-only-azure-front-door
+      ipSecurityRestrictions: [
+        {
+          name: 'FrontDoor'
+          description: 'Azure Front Door filtering'
+          ipAddress: 'AzureFrontDoor.Backend'
+          action: 'Allow'
+          tag: 'ServiceTag'
+          priority: 100
+        }
+      ]
     }
     serverFarmId: appServicePlan.id
     httpsOnly: true
