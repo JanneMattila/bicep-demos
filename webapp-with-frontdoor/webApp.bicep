@@ -2,6 +2,7 @@ param appPlanName string
 param skuName string = 'B1'
 param appName string
 param location string = resourceGroup().location
+param frontdoorId string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appPlanName
@@ -28,7 +29,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       http20Enabled: true
       ftpsState: 'Disabled'
 
-      linuxFxVersion: 'DOCKER|jannemattila/echo:latest'
+      linuxFxVersion: 'DOCKER|inanimate/echo-server'
 
       // https://docs.microsoft.com/en-us/azure/frontdoor/front-door-faq#how-do-i-lock-down-the-access-to-my-backend-to-only-azure-front-door
       ipSecurityRestrictions: [
@@ -39,6 +40,12 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
           action: 'Allow'
           tag: 'ServiceTag'
           priority: 100
+        }
+      ]
+      appSettings: [
+        {
+          name: 'X-Azure-Fdid'
+          value: frontdoorId
         }
       ]
     }

@@ -12,12 +12,18 @@ var backendPool1Name = '${frontDoorName}-backendPool1'
 var loadBalancing1Name = '${frontDoorName}-loadBalancing1'
 var routingRule1Name = '${frontDoorName}-routingRule1'
 
+var webAppUri1 = '${appName1}.azurewebsites.net'
+var webAppUri2 = '${appName2}.azurewebsites.net'
+
+var frontDoorId = reference(frontDoorName, '2020-05-01', 'Full').properties.frontdoorId
+
 module webApp1 './webApp.bicep' = {
   name: 'webApp1'
   params: {
     appPlanName: 'appServicePlan1'
     appName: appName1
     location: location1
+    frontdoorId: frontDoorId
   }
 }
 
@@ -27,6 +33,7 @@ module webApp2 './webApp.bicep' = {
     appPlanName: 'appServicePlan2'
     appName: appName2
     location: location2
+    frontdoorId: frontDoorId
   }
 }
 
@@ -56,8 +63,8 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
         properties: {
           backends: [
             {
-              address: webApp1.outputs.uri
-              backendHostHeader: webApp1.outputs.uri
+              address: webAppUri1
+              backendHostHeader: webAppUri1
               enabledState: 'Enabled'
               httpPort: 80
               httpsPort: 443
@@ -65,8 +72,8 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
               weight: 50
             }
             {
-              address: webApp2.outputs.uri
-              backendHostHeader: webApp2.outputs.uri
+              address: webAppUri2
+              backendHostHeader: webAppUri2
               enabledState: 'Enabled'
               httpPort: 80
               httpsPort: 443
@@ -87,11 +94,9 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
       {
         name: healthProbe1Name
         properties: {
-          enabledState: 'Enabled'
           intervalInSeconds: 30
           path: '/'
           protocol: 'Https'
-          healthProbeMethod: 'GET'
         }
       }
     ]
@@ -122,7 +127,6 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-05-01' = {
             '/*'
           ]
           enabledState: 'Enabled'
-          resourceState: 'Enabled'
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration'
             forwardingProtocol: 'HttpsOnly'
