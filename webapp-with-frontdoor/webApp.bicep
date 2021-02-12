@@ -32,6 +32,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       linuxFxVersion: 'DOCKER|inanimate/echo-server'
 
       // https://docs.microsoft.com/en-us/azure/frontdoor/front-door-faq#how-do-i-lock-down-the-access-to-my-backend-to-only-azure-front-door
+      // https://docs.microsoft.com/en-us/azure/app-service/networking-features#access-restriction-rules-based-on-service-tags-preview
       ipSecurityRestrictions: [
         {
           name: 'FrontDoor'
