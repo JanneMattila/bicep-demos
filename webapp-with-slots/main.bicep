@@ -39,8 +39,8 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = if (deployProductionSite)
           value: 'Banana'
         }
         {
-          name: 'WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG'
-          value: '1'
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
         }
         {
           name: 'WEBSITE_SWAP_WARMUP_PING_PATH'
@@ -93,8 +93,8 @@ resource slot 'Microsoft.Web/sites/slots@2020-06-01' = {
           value: 'Orange'
         }
         {
-          name: 'WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG'
-          value: '1'
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
         }
         {
           name: 'WEBSITE_SWAP_WARMUP_PING_PATH'
