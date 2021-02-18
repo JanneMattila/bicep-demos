@@ -8,6 +8,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   kind: 'linux'
   sku: {
     name: 'S1'
+    capacity: 1
   }
   properties: {
     reserved: true
@@ -28,7 +29,7 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = if (deployProductionSite)
       ftpsState: 'Disabled'
       healthCheckPath: '/'
 
-      linuxFxVersion: 'DOCKER|jannemattila/webapp-update:1.0.3'
+      linuxFxVersion: 'DOCKER|jannemattila/webapp-update:1.0.4'
       appSettings: [
         {
           name: 'AppEnvironment'
@@ -82,7 +83,7 @@ resource slot 'Microsoft.Web/sites/slots@2020-06-01' = {
       ftpsState: 'Disabled'
       healthCheckPath: '/'
 
-      linuxFxVersion: 'DOCKER|jannemattila/webapp-update:1.0.3'
+      linuxFxVersion: 'DOCKER|jannemattila/webapp-update:1.0.4'
       appSettings: [
         {
           name: 'AppEnvironment'
@@ -113,8 +114,7 @@ resource slot 'Microsoft.Web/sites/slots@2020-06-01' = {
 }
 
 //
-// Swap-AzWebAppSlot -ResourceGroupName "rg-bicep-slots" `
-//   -Name "contoso00000000020" `
-//   -SourceSlotName "staging" `
-//   -DestinationSlotName Production
+// Switch-AzWebAppSlot -ResourceGroupName "rg-bicep-slots" -Name "contoso00000000020" -SourceSlotName "staging" -SwapWithPreviewAction ResetSlotSwap -Verbose
+// Switch-AzWebAppSlot -ResourceGroupName "rg-bicep-slots" -Name "contoso00000000020" -SourceSlotName "staging" -DestinationSlotName Production  -SwapWithPreviewAction ApplySlotConfig -Verbose
+// Switch-AzWebAppSlot -ResourceGroupName "rg-bicep-slots" -Name "contoso00000000020" -SourceSlotName "staging" -DestinationSlotName Production  -SwapWithPreviewAction CompleteSlotSwap -Verbose
 //
