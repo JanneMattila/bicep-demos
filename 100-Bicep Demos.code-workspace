@@ -4,5 +4,11 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"ms-azuretools.vscode-bicep",
+			"ms-vscode.powershell"
+		]
+	}
 }
