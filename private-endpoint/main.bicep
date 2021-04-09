@@ -100,7 +100,6 @@ resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01'
 // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/complete-mode-deletion#microsoftnetwork
 resource privateDNSZoneGroupsResource 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-03-01' = {
     name: '${privateEndpointResource.name}/storagednszonegroup'
-    location: location
     properties: {
       privateDnsZoneConfigs: [
         {

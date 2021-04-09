@@ -19,6 +19,7 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
 resource appInsightsResource 'Microsoft.Insights/components@2015-05-01' = {
     name: 'ai-${appName}'
     location: location
+    kind: 'web'
     properties: {
         Application_Type: 'web'
     }
