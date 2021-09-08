@@ -83,7 +83,7 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2021-04-01' = {
                   name: 'public1'
                   properties: {
                     subnet: {
-                      id: '${vnet.properties.subnets[0].id}'
+                      id: vnet.properties.subnets[0].id
                     }
                     publicIPAddressConfiguration: {
                       name: 'pip'
