@@ -1,4 +1,4 @@
-param storageAccountName string = 'stor100000001'
+param storageAccountName string
 
 param location string = resourceGroup().location
 
