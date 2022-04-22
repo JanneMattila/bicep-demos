@@ -8,7 +8,7 @@ var vnetName = 'vnet-${suffix}'
 var privateDNSZoneName = 'privatelink.table.${environment().suffixes.storage}'
 
 // Private DNS Zone
-resource privateDNSZoneResource 'Microsoft.Network/privateDnsZones@2018-09-01'= {
+resource privateDNSZoneResource 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: privateDNSZoneName
   location: 'global'
 }
@@ -65,7 +65,7 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
   location: location
   kind: 'StorageV2'
   sku: {
-      name: 'Standard_LRS'
+    name: 'Standard_LRS'
   }
   properties: {
     networkAcls: {
@@ -75,41 +75,41 @@ resource storageAccountResource 'Microsoft.Storage/storageAccounts@2019-06-01' =
 }
 
 resource privateEndpointResource 'Microsoft.Network/privateEndpoints@2020-05-01' = {
-    name: 'privatelink-to-table'
-    location: location
-    properties: {
-      privateLinkServiceConnections: [
-        {
-          name: 'privatelink-to-table'
-          properties: {
-            privateLinkServiceId: storageAccountResource.id
-            groupIds: [
-              'table'
-            ]
-          }
+  name: 'privatelink-to-table'
+  location: location
+  properties: {
+    privateLinkServiceConnections: [
+      {
+        name: 'privatelink-to-table'
+        properties: {
+          privateLinkServiceId: storageAccountResource.id
+          groupIds: [
+            'table'
+          ]
         }
-      ]
-      subnet: {
-        // Place to subnet: subnet003-private-endpoint
-        id: vnetResource.properties.subnets[2].id
       }
+    ]
+    subnet: {
+      // Place to subnet: subnet003-private-endpoint
+      id: vnetResource.properties.subnets[2].id
     }
+  }
 }
 
 // Note: Complete deployment mode for network resources:
 // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/complete-mode-deletion#microsoftnetwork
 resource privateDNSZoneGroupsResource 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-03-01' = {
-    name: '${privateEndpointResource.name}/storagednszonegroup'
-    properties: {
-      privateDnsZoneConfigs: [
-        {
-          name: 'storageConfig'
-          properties: {
-            privateDnsZoneId: privateDNSZoneResource.id
-          }
+  name: '${privateEndpointResource.name}/storagednszonegroup'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'storageConfig'
+        properties: {
+          privateDnsZoneId: privateDNSZoneResource.id
         }
-      ]
-    }
+      }
+    ]
+  }
 }
 
 // var nic = privateEndpointResource.properties.networkInterfaces[0].id
