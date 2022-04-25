@@ -107,12 +107,12 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
       {
         name: 'probe'
         properties: {
-          protocol: 'Http'
+          protocol: 'Https'
           pickHostNameFromBackendHttpSettings: true
           path: '/'
           interval: 30
           timeout: 30
-          port: 80
+          port: 443
           match: {
             statusCodes: [
               '200'
@@ -121,12 +121,33 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
         }
       }
     ]
+    rewriteRuleSets: [
+      {
+        name: 'add-forwarded-host-header'
+        properties: {
+          rewriteRules: [
+            {
+              ruleSequence: 100
+              name: 'add-forwarded-host-header'
+              actionSet: {
+                requestHeaderConfigurations: [
+                  {
+                    headerName: 'X-Forwarded-Host'
+                    headerValue: '{var_host}'
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
     backendHttpSettingsCollection: [
       {
         name: 'appGatewayBackendHttpSettings'
         properties: {
-          port: 80
-          protocol: 'Http'
+          port: 443
+          protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
           probeEnabled: true
@@ -160,6 +181,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
           defaultBackendHttpSettings: {
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'appGatewayBackendHttpSettings')
           }
+          defaultRewriteRuleSet: {
+            id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'add-forwarded-host-header')
+          }
           pathRules: [
             {
               name: '${appName1}path'
@@ -172,6 +196,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
                 }
                 backendHttpSettings: {
                   id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'appGatewayBackendHttpSettings')
+                }
+                rewriteRuleSet: {
+                  id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'add-forwarded-host-header')
                 }
               }
             }
@@ -186,6 +213,9 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
                 }
                 backendHttpSettings: {
                   id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', applicationGatewayName, 'appGatewayBackendHttpSettings')
+                }
+                rewriteRuleSet: {
+                  id: resourceId('Microsoft.Network/applicationGateways/rewriteRuleSets', applicationGatewayName, 'add-forwarded-host-header')
                 }
               }
             }
@@ -215,6 +245,10 @@ module webApp1 './webApp.bicep' = {
   params: {
     appPlanName: 'appServicePlan1'
     appName: appName1
+    image: 'DOCKER|jannemattila/webapp-auth:1.0.7'
+    customPath: '/app1'
+    proxyIp: publicIP.properties.ipAddress
+    proxyHost: publicIP.properties.dnsSettings.fqdn
     location: location1
   }
 }
@@ -224,6 +258,10 @@ module webApp2 './webApp.bicep' = {
   params: {
     appPlanName: 'appServicePlan2'
     appName: appName2
+    image: 'DOCKER|jannemattila/webapp-auth:1.0.7'
+    customPath: '/app2'
+    proxyIp: publicIP.properties.ipAddress
+    proxyHost: publicIP.properties.dnsSettings.fqdn
     location: location2
   }
 }
