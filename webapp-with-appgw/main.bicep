@@ -1,3 +1,4 @@
+param password string = '<your-password-here>'
 param appName string = 'contoso00000000001'
 param appName1 string = 'contoso00000000010'
 param appName2 string = 'contoso00000000011'
@@ -75,9 +76,24 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
     ]
     frontendPorts: [
       {
-        name: 'appGatewayFrontendPort'
+        name: 'appGatewayFrontendPort-http'
         properties: {
           port: 80
+        }
+      }
+      {
+        name: 'appGatewayFrontendPort-https'
+        properties: {
+          port: 443
+        }
+      }
+    ]
+    sslCertificates: [
+      {
+        name: 'cert'
+        properties: {
+          data: loadFileAsBase64('./cert.pfx')
+          password: password
         }
       }
     ]
@@ -159,15 +175,30 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
     ]
     httpListeners: [
       {
-        name: 'appGatewayHttpListener'
+        name: 'appGatewayHttpListener-http'
         properties: {
           frontendIPConfiguration: {
             id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'appGatewayFrontendIP')
           }
           frontendPort: {
-            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'appGatewayFrontendPort')
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'appGatewayFrontendPort-http')
           }
           protocol: 'Http'
+        }
+      }
+      {
+        name: 'appGatewayHttpListener-https'
+        properties: {
+          frontendIPConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendIPConfigurations', applicationGatewayName, 'appGatewayFrontendIP')
+          }
+          frontendPort: {
+            id: resourceId('Microsoft.Network/applicationGateways/frontendPorts', applicationGatewayName, 'appGatewayFrontendPort-https')
+          }
+          sslCertificate: {
+            id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', applicationGatewayName, 'cert')
+          }
+          protocol: 'Https'
         }
       }
     ]
@@ -189,7 +220,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
               name: '${appName1}path'
               properties: {
                 paths: [
-                  '/app1/*'
+                  '/app1*'
                 ]
                 backendAddressPool: {
                   id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, appName1)
@@ -206,7 +237,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
               name: '${appName2}path'
               properties: {
                 paths: [
-                  '/app2/*'
+                  '/app2*'
                 ]
                 backendAddressPool: {
                   id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', applicationGatewayName, appName2)
@@ -223,13 +254,38 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
         }
       }
     ]
+    redirectConfigurations: [
+      {
+        name: 'to-https'
+        properties: {
+          redirectType: 'Permanent'
+          includePath: true
+          includeQueryString: true
+          targetListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener-https')
+          }
+        }
+      }
+    ]
     requestRoutingRules: [
       {
-        name: 'rules'
+        name: 'https-rule'
+        properties: {
+          ruleType: 'Basic'
+          httpListener: {
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener-http')
+          }
+          redirectConfiguration: {
+            id: resourceId('Microsoft.Network/applicationGateways/redirectConfigurations', applicationGatewayName, 'to-https')
+          }
+        }
+      }
+      {
+        name: 'backend-rule'
         properties: {
           ruleType: 'PathBasedRouting'
           httpListener: {
-            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener')
+            id: resourceId('Microsoft.Network/applicationGateways/httpListeners', applicationGatewayName, 'appGatewayHttpListener-https')
           }
           urlPathMap: {
             id: resourceId('Microsoft.Network/applicationGateways/urlPathMaps', applicationGatewayName, 'paths')
