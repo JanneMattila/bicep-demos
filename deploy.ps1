@@ -38,7 +38,7 @@ $additionalParameters = New-Object -TypeName hashtable
 $result = New-AzResourceGroupDeployment `
     -DeploymentName $deploymentName `
     -ResourceGroupName $ResourceGroupName `
-    -TemplateUri ($templateUrl + $Template + $templateToken) `
+    -TemplateFile $Template `
     @additionalParameters `
     -Mode Complete -Force `
     -Verbose
