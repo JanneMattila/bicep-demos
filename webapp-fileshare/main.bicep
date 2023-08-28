@@ -14,6 +14,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2022-09-01' = {
   name: 'default'
   parent: storageAccount
+  properties: {
+    shareDeleteRetentionPolicy: {
+      enabled: true
+      days: 7
+    }
+  }
 }
 
 resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
@@ -21,6 +27,7 @@ resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-0
   parent: fileService
   properties: {
     enabledProtocols: 'SMB'
+    accessTier: 'Hot'
     shareQuota: 10
   }
 }
@@ -42,12 +49,11 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
 resource appService 'Microsoft.Web/sites@2022-09-01' = {
   name: appName
   location: location
-  kind: 'web'
+  kind: 'app,linux,container'
   properties: {
     siteConfig: {
       alwaysOn: true
       http20Enabled: true
-      ftpsState: 'Disabled'
       linuxFxVersion: 'DOCKER|jannemattila/webapp-fs-tester:1.1.12'
 
       azureStorageAccounts: {
