@@ -11,15 +11,19 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
     }
     subnets: [
       {
-        name: 'Subnet-1'
+        name: 'snet-1'
         properties: {
           addressPrefix: '10.0.0.0/24'
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
         }
       }
       {
-        name: 'Subnet-2'
+        name: 'snet-2'
         properties: {
           addressPrefix: '10.0.1.0/24'
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
         }
       }
     ]
