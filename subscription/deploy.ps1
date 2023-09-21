@@ -2,9 +2,10 @@
 $location = "North Europe"
 
 Login-AzAccount
+Get-AzContext
 
 ####################################
-# Step 1: Create subscription
+#region Step 1: Create subscription
 ####################################
 
 $createSubscriptionParameters = New-Object -TypeName hashtable
@@ -21,8 +22,12 @@ $result = New-AzSubscriptionDeployment `
     -Location $location `
     -Verbose
 
+$subscriptionId = $result.Outputs.subscriptionId.value
+$subscriptionResourceId = $result.Outputs.subscriptionResourceId.value
+#endregion
+
 ####################################
-# Step 2: Move subscription
+#region Step 2: Move subscription
 ####################################
 
 Select-AzSubscription -SubscriptionName "Production"
@@ -47,10 +52,11 @@ New-AzSubscriptionDeployment `
     @moveExistingSubscriptionParameters `
     -Location $location `
     -Verbose -WhatIfResultFormat FullResourcePayloads -WhatIf
+#endregion
 
 ####################################
-# Step 3: Prepare subscription
-####################################
+#region Step 3: Prepare subscription
+# https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-providers-and-types
 
 # Example:
 # https://github.com/Azure/bicep-lz-vending/blob/615a00667847e02a409946ef19b2e93b8d20ec14/.github/scripts/Register-SubResourceProviders.ps1
@@ -75,9 +81,10 @@ $providerNamespaces | ForEach-Object {
         }
     }
 }
+#endregion
 
 ####################################
-# Step 4: Deploy subscription
+#region Step 4: Deploy subscription
 ####################################
 
 $subscriptionContentParameters = New-Object -TypeName hashtable
@@ -95,3 +102,5 @@ New-AzSubscriptionDeployment `
     @subscriptionContentParameters `
     -Location $location `
     -Verbose -WhatIfResultFormat FullResourcePayloads -WhatIf
+
+#endregion
