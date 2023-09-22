@@ -88,7 +88,7 @@ $providerNamespaces | ForEach-Object {
 ####################################
 
 $subscriptionContentParameters = New-Object -TypeName hashtable
-# $additionalParametersToSubscriptionContent['hubVNetId'] = "..."
+# $subscriptionContentParameters['hubVNetId'] = "..."
 
 $result = New-AzSubscriptionDeployment `
     -DeploymentName "SubscriptionContent$((Get-Date).ToString("yyyy-MM-dd-HH-mm-ss"))" `
