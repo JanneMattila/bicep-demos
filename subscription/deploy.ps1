@@ -97,6 +97,16 @@ $result = New-AzSubscriptionDeployment `
     -Location $location `
     -Verbose
 
+# $result = New-AzSubscriptionDeploymentStack `
+#     -Name "SubscriptionContent" `
+#     -TemplateFile SubscriptionContent.bicep `
+#     @subscriptionContentParameters `
+#     -Location $location `
+#     -DenySettingsMode DenyDelete `
+#     -DenySettingsApplyToChildScopes `
+#     -Force `
+#     -Verbose
+
 New-AzSubscriptionDeployment `
     -TemplateFile SubscriptionContent.bicep `
     @subscriptionContentParameters `
