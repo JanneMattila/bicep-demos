@@ -1,3 +1,10 @@
+param username string
+@secure()
+param password string
+
+param hub1location string = 'swedencentral'
+param hub2location string = 'westus3'
+
 var hub1Spokes = [
   {
     name: 'spoke001'
@@ -24,16 +31,49 @@ var hub2Spokes = [
   }
 ]
 
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
+  name: 'nsg-hub1-front'
+  location: hub1location
+  properties: {
+    securityRules: [
+      {
+        name: 'allow-ssh'
+        properties: {
+          access: 'Allow'
+          direction: 'Inbound'
+          protocol: 'Tcp'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '10.0.0.0/8'
+          destinationPortRange: '22'
+          priority: 100
+          description: 'Allow SSH'
+        }
+      }
+    ]
+  }
+}
+
 resource virtualNetwork1 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   name: 'vnet-hub1'
-  location: 'swedencentral'
+  location: hub1location
   properties: {
     addressSpace: {
       addressPrefixes: [
         '10.0.0.0/16'
       ]
     }
-    subnets: []
+    subnets: [
+      {
+        name: 'snet-default'
+        properties: {
+          addressPrefix: '10.0.0.0/24'
+          networkSecurityGroup: {
+            id: networkSecurityGroup.id
+          }
+        }
+      }
+    ]
   }
 }
 
@@ -52,16 +92,49 @@ module spokeDeployments1 'spoke.bicep' = [
   }
 ]
 
+resource networkSecurityGroup2 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
+  name: 'nsg-hub2-front'
+  location: hub2location
+  properties: {
+    securityRules: [
+      {
+        name: 'allow-ssh'
+        properties: {
+          access: 'Allow'
+          direction: 'Inbound'
+          protocol: 'Tcp'
+          sourceAddressPrefix: '*'
+          sourcePortRange: '*'
+          destinationAddressPrefix: '10.3.0.0/16'
+          destinationPortRange: '22'
+          priority: 100
+          description: 'Allow SSH'
+        }
+      }
+    ]
+  }
+}
+
 resource virtualNetwork2 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   name: 'vnet-hub2'
-  location: 'westus3'
+  location: hub2location
   properties: {
     addressSpace: {
       addressPrefixes: [
         '10.3.0.0/16'
       ]
     }
-    subnets: []
+    subnets: [
+      {
+        name: 'snet-default'
+        properties: {
+          addressPrefix: '10.3.0.0/24'
+          networkSecurityGroup: {
+            id: networkSecurityGroup2.id
+          }
+        }
+      }
+    ]
   }
 }
 
@@ -101,5 +174,27 @@ resource hub2ToHub1Peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeer
     remoteVirtualNetwork: {
       id: virtualNetwork1.id
     }
+  }
+}
+
+module vm1 'vm.bicep' = {
+  name: 'vm1'
+  params: {
+    name: hub1location
+    location: hub1location
+    username: username
+    password: password
+    subnetId: virtualNetwork1.properties.subnets[0].id
+  }
+}
+
+module vm2 'vm.bicep' = {
+  name: 'vm2'
+  params: {
+    name: hub2location
+    location: hub2location
+    username: username
+    password: password
+    subnetId: virtualNetwork2.properties.subnets[0].id
   }
 }

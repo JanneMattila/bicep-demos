@@ -32,7 +32,63 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' = {
           networkSecurityGroup: {
             id: networkSecurityGroup.id
           }
+          delegations: [
+            {
+              name: 'ACIDelegation'
+              properties: {
+                serviceName: 'Microsoft.ContainerInstance/containerGroups'
+              }
+            }
+          ]
         }
+      }
+    ]
+  }
+}
+
+resource aci 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
+  name: 'aci-${spokeName}'
+  location: location
+  properties: {
+    containers: [
+      {
+        name: 'webapp-network-tester'
+        properties: {
+          image: 'jannemattila/webapp-network-tester:1.0.69'
+          environmentVariables: [
+            {
+              name: 'ASPNETCORE_URLS'
+              value: 'http://*:80'
+            }
+          ]
+          ports: [
+            {
+              port: 80
+            }
+          ]
+          resources: {
+            requests: {
+              cpu: 1
+              memoryInGB: 1
+            }
+          }
+        }
+      }
+    ]
+    restartPolicy: 'OnFailure'
+    osType: 'Linux'
+    ipAddress: {
+      type: 'Private'
+      ports: [
+        {
+          protocol: 'TCP'
+          port: 80
+        }
+      ]
+    }
+    subnetIds: [
+      {
+        id: virtualNetwork.properties.subnets[0].id
       }
     ]
   }
