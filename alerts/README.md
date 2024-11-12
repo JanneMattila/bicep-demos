@@ -1,0 +1,5 @@
+# Alerts
+
+[Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/)
+
+[Alert processing rules](https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-processing-rules?tabs=portal)
