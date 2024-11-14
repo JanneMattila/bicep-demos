@@ -16,6 +16,7 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
     enabled: true
     evaluationFrequency: 'PT5M'
     windowSize: 'PT5M'
+    autoMitigate: true
     criteria: {
       'odata.type': 'Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria'
       allOf: [
