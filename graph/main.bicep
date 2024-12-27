@@ -30,7 +30,7 @@ resource myApp 'Microsoft.Graph/applications@v1.0' = {
   }
 }
 
-resource exampleGroup 'Microsoft.Graph/groups@v1.0' = {
+resource exampleGroup 'Microsoft.Graph/groups@v1.0' = if (empty(managedIdentityPrincipalId)) {
   displayName: 'My Bicep Example Group'
   uniqueName: 'my-bicep-example-group'
   mailEnabled: false

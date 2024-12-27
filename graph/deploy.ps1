@@ -12,7 +12,7 @@ Param (
     [ValidateSet("AzureADMyOrg", "AzureADMultipleOrgs")]
     [string] $SignInAudience = "AzureADMyOrg",
     
-    [Parameter(HelpMessage = "Issuer")] 
+    [Parameter(HelpMessage = "Issuer (e.g., https://login.microsoftonline.com/<tenant-id>/v2.0)")] 
     [string] $Issuer = "",
 
     [Parameter(HelpMessage = "Deployment target resource group location")] 
