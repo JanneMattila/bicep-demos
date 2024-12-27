@@ -3,23 +3,30 @@ extension microsoftGraphV1
 
 param location string = resourceGroup().location
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: 'umi-bicep-example'
+param managedIdentityName string = 'umi-bicep-example'
+param managedIdentityPrincipalId string = ''
+
+param signInAudience string = 'AzureADMyOrg'
+param issuer string = '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (empty(managedIdentityPrincipalId)) {
+  name: managedIdentityName
   location: location
 }
 
 resource myApp 'Microsoft.Graph/applications@v1.0' = {
   displayName: 'My Bicep Example App'
   uniqueName: 'my-bicep-example-application'
+  signInAudience: signInAudience
 
   resource myMsiFic 'federatedIdentityCredentials@v1.0' = {
-    name: 'my-bicep-example-application/${managedIdentity.name}'
+    name: 'my-bicep-example-application/${managedIdentityName}'
     description: 'Federated Identity Credentials for Managed Identity'
     audiences: [
       environment().authentication.audiences[1]
     ]
-    issuer: '${environment().authentication.loginEndpoint}${tenant().tenantId}/v2.0'
-    subject: managedIdentity.properties.principalId
+    issuer: issuer
+    subject: empty(managedIdentityPrincipalId) ? managedIdentity.properties.principalId : managedIdentityPrincipalId
   }
 }
 

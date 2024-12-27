@@ -2,6 +2,19 @@ Param (
     [Parameter(HelpMessage = "Deployment target resource group")] 
     [string] $ResourceGroupName = "rg-microsoft-graph",
 
+    [Parameter(HelpMessage = "Managed Identity Name")] 
+    [string] $ManagedIdentityName = "umi-bicep-example",
+
+    [Parameter(HelpMessage = "Managed Identity Principal Id")] 
+    [string] $ManagedIdentityPrincipalId = "",
+
+    [Parameter(HelpMessage = "Sign-in Audience")] 
+    [ValidateSet("AzureADMyOrg", "AzureADMultipleOrgs")]
+    [string] $SignInAudience = "AzureADMyOrg",
+    
+    [Parameter(HelpMessage = "Issuer")] 
+    [string] $Issuer = "",
+
     [Parameter(HelpMessage = "Deployment target resource group location")] 
     [string] $Location = "UK South",
 
@@ -33,7 +46,16 @@ if ($null -eq (Get-AzResourceGroup -Name $ResourceGroupName -Location $Location 
 
 # Additional parameters that we pass to the template deployment
 $additionalParameters = New-Object -TypeName hashtable
-#$additionalParameters['templateUrl'] = $templateUrl
+
+if ([string]::IsNullOrEmpty($ManagedIdentityPrincipalId) -eq $false) {
+    $additionalParameters['ManagedIdentityName'] = $ManagedIdentityName
+    $additionalParameters['ManagedIdentityPrincipalId'] = $ManagedIdentityPrincipalId
+}
+
+if ([string]::IsNullOrEmpty($Issuer) -eq $false) {
+    $additionalParameters['SignInAudience'] = $SignInAudience
+    $additionalParameters['Issuer'] = $Issuer
+}
 
 $result = New-AzResourceGroupDeployment `
     -DeploymentName $deploymentName `
