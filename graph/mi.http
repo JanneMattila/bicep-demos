@@ -45,5 +45,5 @@ scope=https://management.azure.com/.default
 
 ### Query resource groups from Litware subscription
 GET https://management.azure.com/subscriptions/{{target_subscription_id}}/resourceGroups?api-version=2024-08-01
-Content-Type: application/application/json
+Content-Type: application/json
 Authorization: Bearer {{entraManagementTokenResponse.response.body.access_token}}
