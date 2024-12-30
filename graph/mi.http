@@ -1,0 +1,49 @@
+@home_tenant_id = {{$dotenv home_tenant_id}}
+@home_client_id = {{$dotenv home_client_id}}
+
+@target_tenant_id = {{$dotenv target_tenant_id}}
+@target_client_id = {{$dotenv target_client_id}}
+@target_subscription_id = {{$dotenv target_subscription_id}}
+
+###
+# @name miTokenResponse
+GET http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=api://AzureADTokenExchange
+Metadata: true
+
+### Get Storage token to Contoso tenant
+# @name entraTokenResponse
+POST https://login.microsoftonline.com/{{home_tenant_id}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+scope=https://storage.azure.com/.default
+&client_id={{home_client_id}}
+&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+&client_assertion={{miTokenResponse.response.body.access_token}}
+&grant_type=client_credentials
+
+### Get Storage token to Litware tenant
+# @name entraStorageTokenResponse
+POST https://login.microsoftonline.com/{{target_tenant_id}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+scope=https://storage.azure.com/.default
+&client_id={{target_client_id}}
+&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+&client_assertion={{miTokenResponse.response.body.access_token}}
+&grant_type=client_credentials
+
+### Get ARM token to Litware tenant
+# @name entraManagementTokenResponse
+POST https://login.microsoftonline.com/{{target_tenant_id}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+scope=https://management.azure.com/.default
+&client_id={{target_client_id}}
+&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+&client_assertion={{miTokenResponse.response.body.access_token}}
+&grant_type=client_credentials
+
+### Query resource groups from Litware subscription
+GET https://management.azure.com/subscriptions/{{target_subscription_id}}/resourceGroups?api-version=2024-08-01
+Content-Type: application/application/json
+Authorization: Bearer {{entraManagementTokenResponse.response.body.access_token}}
